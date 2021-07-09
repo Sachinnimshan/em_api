@@ -4,6 +4,8 @@ import mongoose from 'mongoose';
 import http from 'http';
 import userRouter from './routes/user.js';
 import vendorRouter from './routes/vendor.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 dotenv.config();
 
@@ -26,6 +28,14 @@ mongoose.connect(CONNECTION_URL, {
 
 app.use('/users', userRouter);
 app.use('/vendors', vendorRouter);
+
+if(process.env.NODE_ENV === "production"){
+    const __dirname = path.dirname(fileURLToPath(import.meta.url));
+    app.use(express.static(path.join(__dirname, 'build')));
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(__dirname, 'build', 'index.html'));
+    });
+}
 
 server.listen(PORT, ()=> console.log(`server started at ${PORT}`));
 
